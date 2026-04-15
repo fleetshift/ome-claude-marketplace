@@ -1,0 +1,8 @@
+{
+  "name": "ome-jira",
+  "description": "Jira integration for the OME project — pull issues, update status, triage, create new issues, and manage sprints",
+  "version": "0.1.0",
+  "author": {
+    "name": "OpenShift Management Engine"
+  }
+}

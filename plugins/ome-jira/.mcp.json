@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "mcp-atlassian": {
+      "command": "uvx",
+      "args": [
+        "mcp-atlassian"
+      ],
+      "env": {
+        "JIRA_URL": "https://redhat.atlassian.net"
+      },
+      "type": "stdio"
+    }
+  }
+}

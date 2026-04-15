@@ -1,0 +1,18 @@
+{
+  "name": "ome-marketplace",
+  "owner": {
+    "name": "OpenShift Management Engine"
+  },
+  "metadata": {
+    "description": "Shared Claude Code plugins for the OME project",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "ome-jira",
+      "source": "./plugins/ome-jira",
+      "description": "Jira integration for OME project — issue triage, updates, sprint management, and reporting via mcp-atlassian",
+      "version": "0.1.0"
+    }
+  ]
+}
