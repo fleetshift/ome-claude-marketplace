@@ -19,7 +19,7 @@
     "plugins/ome-jira": {
       "release-type": "simple",
       "component": "ome-jira",
-      "changelog-path": "plugins/ome-jira/CHANGELOG.md",
+      "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
           "type": "json",
