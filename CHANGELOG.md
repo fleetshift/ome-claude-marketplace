@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/fleetshift/ome-claude-marketplace/compare/marketplace@v0.3.0...marketplace@v0.4.0) (2026-04-20)
+
+
+### Features
+
+* register ome-memory plugin in marketplace manifest ([#8](https://github.com/fleetshift/ome-claude-marketplace/issues/8)) ([e2eead1](https://github.com/fleetshift/ome-claude-marketplace/commit/e2eead12d020bc9d52c4bf8eac4a7d24aa6b6730))
+
 ## [0.3.0](https://github.com/fleetshift/ome-claude-marketplace/compare/marketplace@v0.2.1...marketplace@v0.3.0) (2026-04-20)
 
 
