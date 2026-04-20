@@ -13,6 +13,12 @@
       "source": "./plugins/ome-jira",
       "description": "Jira integration for OME project — issue triage, updates, sprint management, and reporting via mcp-atlassian",
       "version": "0.1.0"
+    },
+    {
+      "name": "ome-memory",
+      "source": "./plugins/ome-memory",
+      "description": "Shared agent memory backed by PostgreSQL + pgvector — store, search, and share team knowledge across conversations",
+      "version": "0.1.0"
     }
   ]
 }
