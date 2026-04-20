@@ -2,7 +2,7 @@
   "mcpServers": {
     "memory": {
       "command": "uvx",
-      "args": ["ome-memory-mcp"],
+      "args": ["--from", "git+https://github.com/fleetshift/ome-claude-marketplace.git#subdirectory=plugins/ome-memory", "ome-memory-mcp"],
       "env": {
         "DATABASE_URL": "postgresql://memory:memory@localhost:5488/memory"
       }

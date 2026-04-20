@@ -46,7 +46,7 @@ After the database is running:
 ```bash
 claude mcp add --scope project memory \
   -e DATABASE_URL=postgresql://memory:memory@localhost:5488/memory \
-  -- uvx ome-memory-mcp
+  -- uvx --from "git+https://github.com/fleetshift/ome-claude-marketplace.git#subdirectory=plugins/ome-memory" ome-memory-mcp
 ```
 
 Then reload with `/mcp`.
@@ -66,7 +66,7 @@ docker run -d --name ome-memory-pgvector \
 # Register MCP server
 claude mcp add --scope project memory \
   -e DATABASE_URL=postgresql://memory:memory@localhost:5488/memory \
-  -- uvx ome-memory-mcp
+  -- uvx --from "git+https://github.com/fleetshift/ome-claude-marketplace.git#subdirectory=plugins/ome-memory" ome-memory-mcp
 ```
 
 Then restart Claude Code or run `/mcp` to connect.
@@ -76,7 +76,7 @@ Then restart Claude Code or run `/mcp` to connect.
 **MCP server stuck on "connecting"**: The first run downloads the embedding model (~80MB). Wait 30-60s or pre-warm it:
 ```bash
 DATABASE_URL="postgresql://memory:memory@localhost:5488/memory" \
-  uvx ome-memory-mcp &
+  uvx --from "git+https://github.com/fleetshift/ome-claude-marketplace.git#subdirectory=plugins/ome-memory" ome-memory-mcp &
 sleep 30 && kill %1
 ```
 Subsequent starts are instant.
