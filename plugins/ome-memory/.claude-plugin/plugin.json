@@ -1,5 +1,5 @@
 {
   "name": "ome-memory",
   "description": "Shared agent memory backed by PostgreSQL + pgvector. Provides semantic search, team knowledge sharing, and Google Drive export/import.",
-  "version": "0.2.0"
+  "version": "0.2.1"
 }
