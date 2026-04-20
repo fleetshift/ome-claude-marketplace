@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "memory": {
+      "command": "uvx",
+      "args": ["--from", ".", "ome-memory-mcp"],
+      "env": {
+        "DATABASE_URL": "postgresql://memory:memory@localhost:5488/memory"
+      }
+    }
+  }
+}
