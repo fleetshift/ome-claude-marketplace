@@ -12,8 +12,9 @@ Shared agent memory backed by PostgreSQL + pgvector.
 When the user invokes `/ome-memory:memory`, help them with any of the following:
 
 ### Store knowledge
-- Save user preferences, feedback, project decisions, or reference links
-- Auto-deduplicates by content hash — safe to store the same thing twice
+- **Always search before storing.** Before creating a new entry, run `memory_search` with the key concept. If a similar entry exists (similarity > 0.5), update or skip rather than creating a near-duplicate.
+- If the existing entry is close but missing details, delete the old one and store a merged version.
+- If no similar entry exists, store it.
 - Types: `user`, `feedback`, `project`, `reference`, `general`
 
 ### Search
@@ -44,8 +45,9 @@ When the user invokes `/ome-memory:memory`, help them with any of the following:
 
 ## Guidelines
 
+- **Search before store** — this is the most important rule. Never blindly create entries. Always check what already exists first.
 - Always confirm before storing or deleting
 - Keep entries self-contained — they should make sense without conversation context
-- One fact or rule per entry
+- One fact or rule per entry — prefer updating an existing entry over adding a second one about the same topic
 - Use tags for cross-cutting concerns (e.g. `["frontend", "webpack", "mf"]`)
 - Show results as concise tables when listing multiple entries
