@@ -1,13 +1,19 @@
 ---
 name: memory-ops
-description: Start, stop, and check the shared memory infrastructure (pgvector DB and MCP server). No repo checkout needed — uses docker run and uvx directly.
+description: Set up, start, stop, and check the shared memory infrastructure (pgvector DB and MCP server). Run this skill first if memory tools are not connected. No repo checkout needed.
 ---
 
 # Memory Ops
 
 Manage the ome-memory infrastructure. Everything runs without checking out any repo.
 
-## Start the database
+## First-time setup
+
+The MCP server installs dependencies on first run (~80MB embedding model + Python packages). This takes 1-2 minutes and **will time out** if Claude Code tries to connect before installation finishes.
+
+**Run these steps in order:**
+
+### 1. Start the database
 
 ```bash
 docker run -d --name ome-memory-pgvector \
@@ -19,66 +25,58 @@ docker run -d --name ome-memory-pgvector \
   pgvector/pgvector:pg17
 ```
 
-## Stop the database
+### 2. Pre-warm the MCP server
+
+This downloads and caches all dependencies. Run it and wait for the FastMCP banner to appear, then kill it:
 
 ```bash
-docker stop ome-memory-pgvector && docker rm ome-memory-pgvector
+DATABASE_URL="postgresql://memory:memory@localhost:5488/memory" \
+  uvx --from "git+https://github.com/fleetshift/ome-claude-marketplace.git#subdirectory=plugins/ome-memory" ome-memory-mcp
 ```
 
-## Reset the database (destructive — deletes all memories)
+Wait until you see the `Starting MCP server 'ome-memory'` message, then press Ctrl+C. This only needs to be done once — `uvx` caches the environment for future runs.
 
-```bash
-docker stop ome-memory-pgvector && docker rm ome-memory-pgvector && docker volume rm ome-memory-pgdata
-```
+### 3. Restart the Claude Code session
 
-Then start it again with the command above.
+The MCP server should now connect instantly on startup. If the memory MCP shows as "failed" in `/mcp`, restart the session — the cached environment will make the connection succeed.
 
-## Check database status
+---
+
+## Day-to-day commands
+
+### Check if the database is running
 
 ```bash
 docker ps --filter name=ome-memory-pgvector --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 ```
 
-## Connect the MCP server to Claude Code
-
-After the database is running:
+### Start the database
 
 ```bash
-claude mcp add --scope project memory \
-  -e DATABASE_URL=postgresql://memory:memory@localhost:5488/memory \
-  -- uvx --from "git+https://github.com/fleetshift/ome-claude-marketplace.git#subdirectory=plugins/ome-memory" ome-memory-mcp
+docker start ome-memory-pgvector
 ```
 
-Then reload with `/mcp`.
+If the container doesn't exist yet, create it with the `docker run` command from the setup section.
 
-## Full setup from scratch (one-shot)
+### Stop the database
 
 ```bash
-# Start pgvector
-docker run -d --name ome-memory-pgvector \
-  -e POSTGRES_USER=memory \
-  -e POSTGRES_PASSWORD=memory \
-  -e POSTGRES_DB=memory \
-  -p 5488:5432 \
-  -v ome-memory-pgdata:/var/lib/postgresql/data \
-  pgvector/pgvector:pg17
-
-# Register MCP server
-claude mcp add --scope project memory \
-  -e DATABASE_URL=postgresql://memory:memory@localhost:5488/memory \
-  -- uvx --from "git+https://github.com/fleetshift/ome-claude-marketplace.git#subdirectory=plugins/ome-memory" ome-memory-mcp
+docker stop ome-memory-pgvector
 ```
 
-Then restart Claude Code or run `/mcp` to connect.
+### Reset the database (destructive — deletes all memories)
+
+```bash
+docker stop ome-memory-pgvector && docker rm ome-memory-pgvector && docker volume rm ome-memory-pgdata
+```
+
+Then recreate with the `docker run` command from the setup section.
 
 ## Troubleshooting
 
-**MCP server stuck on "connecting"**: The first run downloads the embedding model (~80MB). Wait 30-60s or pre-warm it:
-```bash
-DATABASE_URL="postgresql://memory:memory@localhost:5488/memory" \
-  uvx --from "git+https://github.com/fleetshift/ome-claude-marketplace.git#subdirectory=plugins/ome-memory" ome-memory-mcp &
-sleep 30 && kill %1
-```
-Subsequent starts are instant.
+**MCP server shows "failed" or "connecting":**
+- Check the database is running: `docker ps --filter name=ome-memory-pgvector`
+- If this is the first run, you need to pre-warm (step 2 above)
+- If already pre-warmed, restart the Claude Code session
 
-**Port 5488 in use**: Change the port in both the `docker run` command and the `DATABASE_URL`.
+**Port 5488 in use:** Change the port in both the `docker run` command and the `DATABASE_URL` environment variable in the MCP server config.
