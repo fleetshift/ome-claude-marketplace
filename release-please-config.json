@@ -27,6 +27,18 @@
           "jsonpath": "$.version"
         }
       ]
+    },
+    "plugins/ome-memory": {
+      "release-type": "python",
+      "component": "ome-memory",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": ".claude-plugin/plugin.json",
+          "jsonpath": "$.version"
+        }
+      ]
     }
   }
 }
