@@ -1,71 +1,84 @@
 ---
 name: memory-ops
-description: Start, stop, and check the shared memory infrastructure (pgvector DB and MCP server). Use for operational tasks like spinning up the local dev environment.
+description: Start, stop, and check the shared memory infrastructure (pgvector DB and MCP server). No repo checkout needed — uses docker run and uvx directly.
 ---
 
 # Memory Ops
 
-Manage the ome-memory infrastructure — pgvector database and MCP server.
+Manage the ome-memory infrastructure. Everything runs without checking out any repo.
 
-## Commands
-
-### Start the database
+## Start the database
 
 ```bash
-cd /Users/martin/fleetshift/ome-claude-marketplace/plugins/ome-memory && docker compose up -d
+docker run -d --name ome-memory-pgvector \
+  -e POSTGRES_USER=memory \
+  -e POSTGRES_PASSWORD=memory \
+  -e POSTGRES_DB=memory \
+  -p 5488:5432 \
+  -v ome-memory-pgdata:/var/lib/postgresql/data \
+  pgvector/pgvector:pg17
 ```
 
-Verify it's running:
+## Stop the database
+
 ```bash
-docker compose -f /Users/martin/fleetshift/ome-claude-marketplace/plugins/ome-memory/docker-compose.yml ps
+docker stop ome-memory-pgvector && docker rm ome-memory-pgvector
 ```
 
-### Stop the database
+## Reset the database (destructive — deletes all memories)
 
 ```bash
-cd /Users/martin/fleetshift/ome-claude-marketplace/plugins/ome-memory && docker compose down
+docker stop ome-memory-pgvector && docker rm ome-memory-pgvector && docker volume rm ome-memory-pgdata
 ```
 
-Add `-v` to also remove the data volume (destructive — deletes all stored memories).
+Then start it again with the command above.
 
-### Check database status
+## Check database status
 
 ```bash
-docker compose -f /Users/martin/fleetshift/ome-claude-marketplace/plugins/ome-memory/docker-compose.yml ps
+docker ps --filter name=ome-memory-pgvector --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 ```
 
-### Connect the MCP server
+## Connect the MCP server to Claude Code
 
-After the database is running, connect the MCP server to Claude Code:
+After the database is running:
 
 ```bash
-claude mcp add --scope project memory -e DATABASE_URL=postgresql://memory:memory@localhost:5488/memory -- uvx --from /Users/martin/fleetshift/ome-claude-marketplace/plugins/ome-memory ome-memory-mcp
+claude mcp add --scope project memory \
+  -e DATABASE_URL=postgresql://memory:memory@localhost:5488/memory \
+  -- uvx ome-memory-mcp
 ```
 
 Then reload with `/mcp`.
 
-### Test the connection
-
-Run a quick round trip to verify everything works:
+## Full setup from scratch (one-shot)
 
 ```bash
-cd /Users/martin/fleetshift/ome-claude-marketplace/plugins/ome-memory && DATABASE_URL="postgresql://memory:memory@localhost:5488/memory" uv run python -c "
-from ome_memory import db
-from ome_memory.embeddings import embed
-conn = db.get_conn()
-db.ensure_schema(conn)
-result = db.search_memories(conn, embed('test'), limit=1)
-print('Connected. Entries in DB:', len(result))
-conn.close()
-"
+# Start pgvector
+docker run -d --name ome-memory-pgvector \
+  -e POSTGRES_USER=memory \
+  -e POSTGRES_PASSWORD=memory \
+  -e POSTGRES_DB=memory \
+  -p 5488:5432 \
+  -v ome-memory-pgdata:/var/lib/postgresql/data \
+  pgvector/pgvector:pg17
+
+# Register MCP server
+claude mcp add --scope project memory \
+  -e DATABASE_URL=postgresql://memory:memory@localhost:5488/memory \
+  -- uvx ome-memory-mcp
 ```
 
-### Reset the database
+Then restart Claude Code or run `/mcp` to connect.
 
-Stop and remove the volume, then restart:
+## Troubleshooting
 
+**MCP server stuck on "connecting"**: The first run downloads the embedding model (~80MB). Wait 30-60s or pre-warm it:
 ```bash
-cd /Users/martin/fleetshift/ome-claude-marketplace/plugins/ome-memory && docker compose down -v && docker compose up -d
+DATABASE_URL="postgresql://memory:memory@localhost:5488/memory" \
+  uvx ome-memory-mcp &
+sleep 30 && kill %1
 ```
+Subsequent starts are instant.
 
-Then re-run schema setup by restarting the MCP server.
+**Port 5488 in use**: Change the port in both the `docker run` command and the `DATABASE_URL`.
