@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/fleetshift/ome-claude-marketplace/compare/marketplace@v0.2.1...marketplace@v0.3.0) (2026-04-20)
+
+
+### Features
+
+* ome-memory MCP server plugin ([#6](https://github.com/fleetshift/ome-claude-marketplace/issues/6)) ([1675448](https://github.com/fleetshift/ome-claude-marketplace/commit/167544895ecfe82051841acd720224daad8ec7eb))
+
 ## [0.2.1](https://github.com/fleetshift/ome-claude-marketplace/compare/marketplace@v0.2.0...marketplace@v0.2.1) (2026-04-17)
 
 
